@@ -1,3 +1,4 @@
+import { ligarluz } from "../../ard-back/acao";
 let horaAtual = "";
 
 function relogio() {
@@ -14,8 +15,7 @@ function extrairHorario(str, chave) {
   const regex = new RegExp(`${chave}\\s*:\\s*(\\d{1,2})h`, 'i');
   const match = str.match(regex);
   if (match) {
-    const hora = match[1].padStart(2, '0');
-    return `${hora}:00:00`;
+   ligarluz()
   }
   return null;
 }
@@ -51,4 +51,6 @@ setInterval(() => {
     console.log("⚠️ Horários inválidos ou não encontrados");
   }
 }, 1000);
+
+
 

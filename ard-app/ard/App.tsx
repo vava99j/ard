@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import axios from "axios";
 
+
 export default function App() {
   const [sensor, setSensor] = useState<string>("...");
   const [horaAtual, setHoraAtual] = useState<string>("");
