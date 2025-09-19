@@ -1,4 +1,4 @@
-import { ligarluz } from "../../ard-back/acao";
+import { ligarluz } from "./acao";
 let horaAtual = "";
 
 function relogio() {
