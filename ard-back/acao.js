@@ -1,5 +1,5 @@
 import { SerialPort } from 'serialport';
-
+export function ligarLuz(){
 // 🛠️ Ajuste sua porta COM aqui
 const port = new SerialPort({
   path: 'COM11',
@@ -34,3 +34,4 @@ port.on('open', () => {
 port.on('error', (err) => {
   console.error('Erro na porta serial:', err.message);
 });
+}
