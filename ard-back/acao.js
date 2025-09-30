@@ -7,17 +7,17 @@ port.on("open", () => {
 
   setTimeout(() => {
     port.write("1"); // Liga LED no pino 4
-    console.log("LED pino 1 ligado");
+    console.log("LED pino 4 ligado");
   }, 2000);
 
   setTimeout(() => {
     port.write("2"); // Liga LED no pino 7
-    console.log("LED pino 2 ligado");
+    console.log("LED pino 7 ligado");
   }, 3000);
 
     setTimeout(() => {
     port.write("3"); // Liga LED no pino 7
-    console.log("LED pino 3 ligado");
+    console.log("LED pino 4 e 7 ligado");
   }, 4000);
 
   setTimeout(() => {
