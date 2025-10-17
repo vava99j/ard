@@ -5,7 +5,8 @@ import { SerialPort } from "serialport";
 export default async function Arduino(porta) {
 const API_BASE = 'https://servidor-632w.onrender.com/arduinos';
 const cod_ard = "tec-1";
-const port = new SerialPort({ path: porta , baudRate: 9600 });
+
+const port = new SerialPort({ path: porta, baudRate: 9600 });
 
   try {
     console.log(`🔍 Buscando dados do Arduino com código: ${cod_ard}...`);
