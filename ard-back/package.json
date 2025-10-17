@@ -7,7 +7,7 @@
   "scripts": {
     "OpenServer": "cmd.exe /c openServer.bat",
     "start": "node server.js",
-    "ArdStart": "npm i && node comp.js"
+    "ArdStart": "npm i && node ard.js"
   },
   "keywords": [],
   "author": "",

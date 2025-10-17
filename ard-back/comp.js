@@ -12,7 +12,6 @@ const port = new SerialPort({ path: porta, baudRate: 9600 });
     console.log(`🔍 Buscando dados do Arduino com código: ${cod_ard}...`);
     const response = await axios.get(`${API_BASE}/${cod_ard}`);
 
-    // Aqui assumo que response.data é um array
     const [dados] = response.data;
     const hor = dados.horarios;
     console.log('\n📦 Dados recebidos:');
@@ -21,24 +20,23 @@ const port = new SerialPort({ path: porta, baudRate: 9600 });
     const numeros = hor.match(/\d+(?=h)/g).map(Number);
     console.log("📊 Números extraídos:", numeros);
 
-    // Converte horas para milissegundos para usar em setInterval e verifica se é 0
   for(let i=0 ; i<numeros.length ; i++){
   if(numeros[i] == 0) {
     numeros[i] = null;
   } else {
-    numeros[i] = numeros[i] * 3600 * 1000;  // <-- atribuição correta!
+    numeros[i] = numeros[i] * 3600 * 1000
   }
 }
 
 
-const agua = numeros[0];
-const sol = numeros[1];
-const ventilacao = numeros[2];
-const irrigacao = numeros[3];
+const agua = numeros[0]
+const sol = numeros[1]
+const ventilacao = numeros[2]
+const irrigacao = numeros[3]
 
 
 //  port.on("open", () => {
-    console.log("Conectado ao Arduino");
+    console.log("Conectado ao Arduino")
     console.log("agua")
         // port.write("1")
     console.log("sol")
@@ -51,35 +49,35 @@ const irrigacao = numeros[3];
   
     if (agua !== null) {
       setInterval(() => {
-        console.log("agua");
+        console.log("agua")
         // port.write("1")
       }, agua);
     }
 
     if (sol !== null) {
       setInterval(() => {
-        console.log("sol");
+        console.log("sol")
         // port.write("2")
       }, sol);
     }
 
     if (ventilacao !== null) {
       setInterval(() => {
-        console.log("ventilação");
+        console.log("ventilação")
         // port.write("3")
       }, ventilacao);
     }
 
     if (irrigacao !== null) {
       setInterval(() => {
-        console.log("irrigação");
+        console.log("irrigação")
         // port.write("4");
       }, irrigacao);
     }
   //})
 
   } catch (error) {
-    console.error('❌ Erro ao buscar Arduino:', error.message);
+    console.error('❌ Erro ao buscar Arduino:', error.message)
   }
 }
 
