@@ -49,10 +49,10 @@ function cicloRelé(lig, des, tempoLigado, tempoDesligado) {
   }, tempoLigado);
 }
 
-cicloRelé('1','A', 20*60*1000, numeros[0]); 
-cicloRelé('2','B', 1*60*1000, numeros[1]);  
-cicloRelé('3','C', 1*60*1000, numeros[2]);  
-cicloRelé('4','D', 1*30*1000, numeros[3]);    
+if(numeros[0] != 0)cicloRelé('1','A', 20*60*1000, numeros[0]); 
+if(numeros[1] != 0)cicloRelé('2','B', 1*60*1000, numeros[1]);  
+if(numeros[2] != 0)cicloRelé('3','C', 1*60*1000, numeros[2]);  
+if(numeros[3] != 0)cicloRelé('4','D', 1*30*1000, numeros[3]);    
 
  }, 200);})
 
