@@ -1,17 +1,21 @@
 import axios from "axios";
 import { SerialPort } from "serialport";
 
-
 export default async function Arduino(porta) {
-const API_BASE = 'https://servidor-632w.onrender.com/arduinos';
-const cod_ard = "tec-1";
 
-const port = new SerialPort({ path: porta, baudRate: 9600 });
+  const API_BASE = 'https://servidor-632w.onrender.com/arduinos';
+  const cod_ard = "tec-1";
+  const port = new SerialPort({ path: porta, baudRate: 9600 }, (err) => {
+    if (err) {
+      console.error('❌ Erro ao abrir a porta:', err.message);
+    } else {
+      console.log(`🔌 Porta ${porta} aberta!`);
+    }
+  });
 
   try {
     console.log(`🔍 Buscando dados do Arduino com código: ${cod_ard}...`);
     const response = await axios.get(`${API_BASE}/${cod_ard}`);
-
     const [dados] = response.data;
     const hor = dados.horarios;
     console.log('\n📦 Dados recebidos:');
@@ -20,65 +24,48 @@ const port = new SerialPort({ path: porta, baudRate: 9600 });
     const numeros = hor.match(/\d+(?=h)/g).map(Number);
     console.log("📊 Números extraídos:", numeros);
 
-  for(let i=0 ; i<numeros.length ; i++){
-  if(numeros[i] == 0) {
-    numeros[i] = null;
-  } else {
-    numeros[i] = numeros[i] * 3600 * 1000
-  }
+    for (let i = 0; i < numeros.length; i++) {
+      if (numeros[i] == 0) {
+        numeros[i] = null;
+      } else {
+        numeros[i] = numeros[i] * 3600 * 1000
+      }
+    }
+
+    port.on("open", () => {
+      setTimeout(() => {
+function cicloRelé(lig, des, tempoLigado, tempoDesligado) {
+  port.write(lig);
+  console.log(`🔔 ${lig} LIGADO`);
+
+  setTimeout(() => {
+    port.write(des);
+    console.log(`🔕 ${des} DESLIGADO`);
+
+    setTimeout(() => {
+      cicloRelé(lig, des, tempoLigado, tempoDesligado);
+    }, tempoDesligado);
+
+  }, tempoLigado);
 }
 
+cicloRelé('1','A', 20*60*1000, numeros[0]); 
+cicloRelé('2','B', 1*60*1000, numeros[1]);  
+cicloRelé('3','C', 1*60*1000, numeros[2]);  
+cicloRelé('4','D', 1*30*1000, numeros[3]);    
 
-const agua = numeros[0]
-const sol = numeros[1]
-const ventilacao = numeros[2]
-const irrigacao = numeros[3]
+ }, 200);})
 
-
-//  port.on("open", () => {
-    console.log("Conectado ao Arduino")
-    console.log("agua")
-        // port.write("1")
-    console.log("sol")
-        // port.write("2")
-    console.log("ventilação")
-        // port.write("3")
-    console.log("irrigação")
-        // port.write("4")
 
   
-    if (agua !== null) {
-      setInterval(() => {
-        console.log("agua")
-        // port.write("1")
-      }, agua);
-    }
+    port.on("data", data => {
+      console.log("📥 Dados do Arduino:", data.toString());
+    });
 
-    if (sol !== null) {
-      setInterval(() => {
-        console.log("sol")
-        // port.write("2")
-      }, sol);
-    }
-
-    if (ventilacao !== null) {
-      setInterval(() => {
-        console.log("ventilação")
-        // port.write("3")
-      }, ventilacao);
-    }
-
-    if (irrigacao !== null) {
-      setInterval(() => {
-        console.log("irrigação")
-        // port.write("4");
-      }, irrigacao);
-    }
-  //})
-
+    process.stdin.resume();
   } catch (error) {
+
     console.error('❌ Erro ao buscar Arduino:', error.message)
+
   }
 }
-
-
