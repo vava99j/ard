@@ -1,5 +1,6 @@
 import axios from "axios";
-import { SerialPort } from "serialport";
+import PathArd from "./path.js";
+import { SerialPort, ReadlineParser} from "serialport";
 
 export default async function Arduino(porta) {
 
@@ -32,6 +33,8 @@ export default async function Arduino(porta) {
       }
     }
 
+const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
+
     port.on("open", () => {
       setTimeout(() => {
 function cicloRelé(lig, des, tempoLigado, tempoDesligado) {
@@ -55,6 +58,22 @@ if(numeros[2] != 0)cicloRelé('3','C', 1*60*1000, numeros[2]);
 if(numeros[3] != 0)cicloRelé('4','D', 1*30*1000, numeros[3]);    
 
  }, 200);})
+
+parser.on('data', data => {
+  const linhaCompleta = data.trim();
+  const partes = linhaCompleta.split(' ');
+  const statusSolo = partes[partes.length - 1];
+
+  if (statusSolo === 'UMIDO' || statusSolo === 'SECO') {
+    console.log(`[${new Date().toLocaleTimeString()}] Status Atual do Solo: **${statusSolo}**`);
+     PathArd(cod_ard, statusSolo)
+    if (statusSolo === 'SECO') {
+    }
+
+  } else {
+    console.log(`[Debug do Arduino] ${linhaCompleta}`);
+  }
+});
 
 
   
