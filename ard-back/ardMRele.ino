@@ -1,7 +1,7 @@
-const int R1 = 7;
-const int R2 = 6;
-const int R3 = 5;
-const int R4 = 4;
+#define R1 7
+#define R2 6
+#define R3 4
+#define R4 4
 const int pinoSensorUmidade = A0;
 
 const int LIMIAR_SECO = 800;

@@ -1,55 +1,63 @@
+import axios from "axios";
+import PathArd from "./path.js";
 import { SerialPort, ReadlineParser } from "serialport";
-// --- ⚠️ CONFIGURAÇÃO OBRIGATÓRIA ⚠️ ---
-// SUBSTITUA AQUI pelo nome da porta serial do seu Arduino!
-const portaArduino = 'COM5'; 
-const baudRate = 9600; // Deve ser o mesmo do Arduino (Serial.begin(9600))
-// ----------------------------------------
 
-// Cria a instância de SerialPort
-const port = new SerialPort({
-  path: portaArduino,
-  baudRate: baudRate,
-});
 
-// Configura o parser para ler os dados linha por linha (separado por \n)
-const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
+export default async function Arduino(porta) {
+    const cod_ard = "tec-1";
+    const port = new SerialPort({
+        path: porta,
+        baudRate: 9600,
+    });
 
-// --- Eventos da Porta Serial ---
+    port.on('open', async () => {
+        const API_BASE = 'https://servidor-632w.onrender.com/arduinos';
+        console.log(`🔍 Buscando dados do Arduino com código: ${cod_ard}...`);
+        const response = await axios.get(`${API_BASE}/${cod_ard}`);
+        const [dados] = response.data;
+        const hor = dados.horarios;
+        console.log('\n📦 Dados recebidos:');
+        console.log(hor);
+        const numeros = hor.match(/\d+(?=h)/g).map(Number);
+        console.log("📊 Números extraídos:", numeros);
 
-// Evento: Quando a porta serial é aberta com sucesso
-port.on('open', () => {
-  console.log('✅ CONECTADO ao Arduino na porta: ' + portaArduino);
-  console.log('Monitoramento de status de umidade iniciado. Aguardando MUDANÇAS...');
-});
+        for (let i = 0; i < numeros.length; i++) {
+            if (numeros[i] == 0) {
+                numeros[i] = null;
+            } else {
+                numeros[i] = numeros[i] * 3600 * 1000
+            }
+        }
+        function cicloRelé(lig, des, tempol, tempod) {
+            setTimeout(() => {
+                port.write(lig);
+                setTimeout(() => {
+                    port.write(des);
+                }, tempol);
+                cicloRelé(lig, des, tempol, tempod)
+            }, tempod);
+        }
+        if (numeros[0] != 0) cicloRelé('1', 'A', 20 * 60 * 1000, numeros[0]);
+        if (numeros[1] != 0) cicloRelé('2', 'B', 1 * 60 * 1000, numeros[1]);
+        if (numeros[2] != 0) cicloRelé('3', 'C', 1 * 60 * 1000, numeros[2]);
+        if (numeros[3] != 0) cicloRelé('4', 'D', 0.5 * 60 * 1000, numeros[3]);;
+    });
 
-// Evento: Quando dados são recebidos (uma linha completa)
-parser.on('data', data => {
-  const statusRecebido = data.trim();
-  
-  // O Arduino está enviando apenas "UMIDO" ou "SECO" quando há alteração.
-  if (statusRecebido === 'UMIDO' || statusRecebido === 'SECO') {
-    
-    // Status VÁLIDO e ATUALIZADO
-    console.log('\n======================================');
-    console.log(`[${new Date().toLocaleTimeString()}] **ALERTA DE MUDANÇA!**`);
-    console.log(`NOVO STATUS DO SOLO: **${statusRecebido}**`);
-    console.log('======================================');
-    
-    // --- Lógica de Ação ---
-    if (statusRecebido === 'SECO') {
-      console.log('⚠️ AÇÃO NECESSÁRIA: O solo precisa de água! (Inicie a bomba, envie um SMS, etc.)');
-    } else {
-      console.log('🎉 STATUS BOM: O solo está úmido o suficiente.');
-    }
 
-  } else {
-    // Para capturar outras mensagens de inicialização ou debug do Arduino.
-    console.log(`[Mensagem de Debug/Inicialização do Arduino]: ${statusRecebido}`);
-  }
-});
+    const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
+    parser.on('data', data => {
+        const linhaCompleta = data.trim();
+        const partes = linhaCompleta.split(' ');
+        const statusSolo = partes[partes.length - 1];
 
-// Evento: Erros na comunicação serial
-port.on('error', err => {
-  console.error('❌ ERRO NA COMUNICAÇÃO SERIAL:', err.message);
-  console.log('Dica: Verifique se a porta serial (path) está configurada corretamente e se o Arduino não está sendo usado pelo Monitor Serial da IDE.');
-});
+        if (statusSolo === 'UMIDO' || statusSolo === 'SECO') {
+            console.log(`[${new Date().toLocaleTimeString()}]
+                    Status Atual do Solo: **${statusSolo}**`);
+            PathArd(cod_ard, statusSolo)
+        } else {
+            console.log(`[Arduino]: ${linhaCompleta}`);
+        }
+        process.stdin.resume();
+    });
+
+}

@@ -1,5 +1,5 @@
 import { SerialPort } from 'serialport';
-import Arduino from "./comp.js";
+import Arduino from "./index.js";
 
 SerialPort.list().then(ports => {
   ports.forEach(port => {
