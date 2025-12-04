@@ -1,6 +1,6 @@
 #define R1 7
 #define R2 6
-#define R3 4
+#define R3 5
 #define R4 4
 const int pinoSensorUmidade = A0;
 
